@@ -146,17 +146,17 @@ X = scaler2.fit_transform(X)
 
 
 
+hparam = dict(learning_rate=0.2,
+              max_depth=1, max_features='log2',
+               n_estimators=500,  random_state=32)
 
-
-model_xgb = GradientBoostingClassifier(learning_rate=0.2,
-                                       max_depth=1, max_features='log2',
-                          n_estimators=500,  random_state=32)
+model_gb = GradientBoostingClassifier(**hparam, n_jobs=-1)
 
 
 
 cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
 
-n_scores = cross_val_score(model_xgb, X=X, y=y, scoring='accuracy', cv=cv, n_jobs=-1)
+n_scores = cross_val_score(model_gb, X=X, y=y, scoring='accuracy', cv=cv, n_jobs=-1)
 # report performance
 
 #print(n_scores)
@@ -194,7 +194,7 @@ def evaluate_model(data_x, data_y, model):
 
 
 cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
-# sh = HalvingGridSearchCV(model_xgb, param_grid, cv=cv,
+# sh = HalvingGridSearchCV(model_gb, param_grid, cv=cv,
 #                          factor=2,resource='n_estimators',
 #                          max_resources=500
 #                         ).fit(X, y)
@@ -215,7 +215,7 @@ if grid == 'y':
                                 
                   }
     
-    grid = GridSearchCV(estimator=model_xgb, param_grid=param_grid,  cv=cv,
+    grid = GridSearchCV(estimator=model_gb, param_grid=param_grid,  cv=cv,
                         scoring='accuracy', n_jobs=-1)
     grid_result = grid.fit(X, y)
     #summarize results
@@ -232,7 +232,7 @@ if grid == 'y':
 
 (predicted_targets,
 actual_targets,
-predicted_targets_prob) = evaluate_model(X, y, model_xgb)
+predicted_targets_prob) = evaluate_model(X, y, model_gb)
 
 
 plt.grid('off')
@@ -297,7 +297,7 @@ plt.show()
 
 
 
-clf= model_xgb.fit(X, y)
+clf= model_gb.fit(X, y)
 
 
 print(clf.feature_importances_)
