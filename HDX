@@ -4,7 +4,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
+from sklearn.mixture import (GaussianMixture, BayesianGaussianMixture)
 import seaborn as sns
 from sklearn.metrics import (roc_curve, auc, confusion_matrix, 
                              accuracy_score, balanced_accuracy_score, roc_auc_score)
@@ -258,21 +258,20 @@ x_, y_ = calibration_curve(actual_targets,predicted_targets_prob, n_bins=20)
 sns.regplot(x=x_, y=y_, ax=ax)
 
 ax.set_title('Calibration curve')
-#plt.colorbar()
+
 ax.set_xlabel('Mean predicted probability')
 ax.set_ylabel('Fraction of positives')
 ax.set_ylim(0,1.03)
 ax.set_xlim(0,1.03)
-#ax.grid('off')
+
 
 
 
 #plt.show()
 ax= axes[3]
-#print(actual_targets)
+
 fpr, tpr, thresholds = roc_curve(actual_targets,predicted_targets_prob)
-# plot no skill
-#plt.plot([0, 1], [0, 1], linestyle='--')
+
 auc_ = roc_auc_score(actual_targets,predicted_targets_prob)
 
 sns.lineplot(x=fpr, y=tpr, label='AUC = %0.2f' % auc_, color='red', linewidth=2, 
@@ -314,16 +313,11 @@ plt.show()
 
 
 path = "/"
-for i in range(500):
-        
-    sub_tree_ = clf.estimators_[i, 0]
-    
-    
+for i in range(500):        
+    sub_tree_ = clf.estimators_[i, 0]        
     dot_data = export_graphviz(
-          sub_tree_,
-        
-    )
-    
+          sub_tree_,        
+    )    
     graph = graphviz.Source(dot_data, path +"%.d_GB" % i, format='png', ) 
     graph.view()
     
