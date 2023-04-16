@@ -60,8 +60,8 @@ data_1 = np.loadtxt(file_1, delimiter=",", dtype=np.str)
  SS, k_int, k_obs, res, L, R, LL, RR) = (
 
 
- (data_1[:, 2].astype(np.float32),
-  data_1[:, 4].astype(np.float32),
+            (data_1[:, 2].astype(np.float32),
+             data_1[:, 4].astype(np.float32),
              data_1[:,5].astype(np.float32),
              data_1[:,6].astype(np.float32),
              data_1[:,7].astype(np.float32),
@@ -206,7 +206,10 @@ def evaluate_model(data_x, data_y, model):
 
 
 
-cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
+cv = RepeatedStratifiedKFold(n_splits=5,
+                             n_repeats=1,
+                             random_state=32)
+
 # sh = HalvingGridSearchCV(model_gb, param_grid, cv=cv,
 #                          factor=2,resource='n_estimators',
 #                          max_resources=500
@@ -223,13 +226,17 @@ if grid == 'y':
     param_grid = {'learning_rate': [ 0.1, 0.2, 0.3, 0.4,0.5,0.6, 0.7, 0.8, 1, 2, 3,], 
                   'max_depth': np.arange(1, 10) ,
                   'n_estimators' : [50, 100, 200, 400, 500,],
-                 'min_samples_split' : [1, 2, 3, 4, 5],
+                  'min_samples_split' : [1, 2, 3, 4, 5],
                   'min_samples_leaf' : [1, 2, 3, 4, 5]           
                                 
                   }
     
-    grid = GridSearchCV(estimator=model_gb, param_grid=param_grid,  cv=cv,
-                        scoring='accuracy', n_jobs=-1)
+    grid = GridSearchCV(estimator=model_gb,
+                        param_grid=param_grid,
+                        cv=cv,
+                        scoring='accuracy',
+                        n_jobs=-1)
+    
     grid_result = grid.fit(X, y)
     #summarize results
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
@@ -292,6 +299,7 @@ sns.lineplot(x=fpr, y=tpr, label='AUC = %0.2f' % auc_, color='red', linewidth=2,
 sns.lineplot(x=[0, 1], y=[0, 1], color='navy', lw=1, linestyle='--',  )
 plt.legend(loc=0, frameon=True, prop={'size':10 }
            ,handlelength=0, borderaxespad=0.25, handletextpad=0 )
+
 ax.set_ylim(0,1.03)
 ax.set_xlim(0,1.03)
 ax.set_title('ROC curve')
