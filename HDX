@@ -26,15 +26,24 @@ import graphviz
 
 #Graphs in png and pdf formats
 def plot(name):
-    plt.savefig(name, dpi=600, facecolor='w', edgecolor='w',
-                        orientation='portrait',  format="png",
-                        transparent=None, bbox_inches="tight",  )
+    plt.savefig(name,
+                dpi=600,
+                facecolor='w',
+                edgecolor='w',
+                orientation='portrait',
+                format="png",
+                transparent=None,
+                bbox_inches="tight",  )
     return 0
 
 def plot_pdf(name):
-    plt.savefig(name,  facecolor='w', edgecolor='w',
-                        orientation='portrait', format="pdf",
-                        transparent=None, bbox_inches="tight",  )
+    plt.savefig(name,
+                facecolor='w',
+                edgecolor='w',
+                orientation='portrait',
+                format="pdf",
+                transparent=None,
+                bbox_inches="tight",  )
     return 0
 
 
@@ -59,8 +68,10 @@ data_1 = np.loadtxt(file_1, delimiter=",", dtype=np.str)
              data_1[:, 3],
              data_1[:, 8].astype(np.float32), 
              data_1[:, 9].astype(np.float32),
-             data_1[:, 0], data_1[:, 11],
-             data_1[:, 12],data_1[:, 13],
+             data_1[:, 0],
+             data_1[:, 11],
+             data_1[:, 12],
+             data_1[:, 13],
              data_1[:, 14]  )
  )
 
@@ -147,8 +158,10 @@ X = scaler2.fit_transform(X)
 
 
 hparam = dict(learning_rate=0.2,
-              max_depth=1, max_features='log2',
-               n_estimators=500,  random_state=32)
+              max_depth=1,
+              max_features='log2',
+              n_estimators=500,
+              random_state=32)
 
 model_gb = GradientBoostingClassifier(**hparam, n_jobs=-1)
 
