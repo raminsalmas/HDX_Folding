@@ -145,4 +145,4 @@ if __name__ == "__main__":
     model_evaluator = ModelEvaluator(model_gb)
     predicted_targets, actual_targets, predicted_targets_prob = model_evaluator.evaluate_model(Kio, aa_phi_psi)
 
-    # More code...
+ 
