@@ -2,14 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.mixture import GaussianMixture
 import seaborn as sns
-from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score, balanced_accuracy_score, roc_auc_score
-import sys
+from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score, roc_auc_score
 import pandas as pd
-from collections import Counter
 from sklearn.utils import shuffle
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.model_selection import (cross_val_score, cross_val_predict, cross_validate,
-                                     RepeatedStratifiedKFold, GridSearchCV)
+from sklearn.model_selection import RepeatedStratifiedKFold, GridSearchCV
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.calibration import calibration_curve, CalibrationDisplay
 from sklearn.tree import export_graphviz
@@ -26,19 +23,8 @@ class DataProcessor:
 
     def preprocess_data(self, data_1):
         (
-            lnp,
-            sasa,
-            phi,
-            psi,
-            r_matrix,
-            SS,
-            k_int,
-            k_obs,
-            res,
-            L,
-            R,
-            LL,
-            RR,
+            lnp, sasa, phi, psi, r_matrix,
+            SS, k_int, k_obs, res, L, R, LL, RR
         ) = (
             data_1[:, 2].astype(np.float32),
             data_1[:, 4].astype(np.float32),
@@ -52,7 +38,7 @@ class DataProcessor:
             data_1[:, 11],
             data_1[:, 12],
             data_1[:, 13],
-            data_1[:, 14],
+            data_1[:, 14]
         )
 
         le = LabelEncoder()
@@ -145,4 +131,4 @@ if __name__ == "__main__":
     model_evaluator = ModelEvaluator(model_gb)
     predicted_targets, actual_targets, predicted_targets_prob = model_evaluator.evaluate_model(Kio, aa_phi_psi)
 
- 
+    
