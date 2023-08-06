@@ -2,127 +2,147 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.mixture import GaussianMixture
 import seaborn as sns
-from sklearn.metrics import (roc_curve, auc, confusion_matrix, accuracy_score, balanced_accuracy_score, roc_auc_score)
+from sklearn.metrics import roc_curve, auc, confusion_matrix, accuracy_score, balanced_accuracy_score, roc_auc_score
 import sys
-from random import sample
 import pandas as pd
 from collections import Counter
 from sklearn.utils import shuffle
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.model_selection import (cross_val_score, cross_val_predict, cross_validate, RepeatedStratifiedKFold, KFold, StratifiedKFold, HalvingGridSearchCV, GridSearchCV, train_test_split)
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, label_binarize, LabelEncoder
+from sklearn.model_selection import (cross_val_score, cross_val_predict, cross_validate,
+                                     RepeatedStratifiedKFold, GridSearchCV)
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.calibration import calibration_curve, CalibrationDisplay
 from sklearn.tree import export_graphviz
 import graphviz
 
-# Graphs in png and pdf formats
-def plot(name):
-    # Function to save the plot in png format
-    plt.savefig(name,
-                dpi=600,
-                facecolor='w',
-                edgecolor='w',
-                orientation='portrait',
-                format="png",
-                transparent=None,
-                bbox_inches="tight", )
-    return 0
 
-def plot_pdf(name):
-    # Function to save the plot in pdf format
-    plt.savefig(name,
-                facecolor='w',
-                edgecolor='w',
-                orientation='portrait',
-                format="pdf",
-                transparent=None,
-                bbox_inches="tight", )
-    return 0
+class DataProcessor:
+    def __init__(self, file_path):
+        self.file_path = file_path
 
-def load_data(file_path):
-    # Function to load data from a CSV file
-    data = np.loadtxt(file_path, delimiter=",", dtype=np.str)
-    return data
+    def load_data(self):
+        data_1 = np.loadtxt(self.file_path, delimiter=",", dtype=np.str)
+        return data_1
 
-def prepare_labels(data, label_col):
-    # Function to preprocess labels using LabelEncoder
-    le = LabelEncoder()
-    labels = le.fit_transform(data[:, label_col])
-    return labels, le
+    def preprocess_data(self, data_1):
+        (
+            lnp,
+            sasa,
+            phi,
+            psi,
+            r_matrix,
+            SS,
+            k_int,
+            k_obs,
+            res,
+            L,
+            R,
+            LL,
+            RR,
+        ) = (
+            data_1[:, 2].astype(np.float32),
+            data_1[:, 4].astype(np.float32),
+            data_1[:, 5].astype(np.float32),
+            data_1[:, 6].astype(np.float32),
+            data_1[:, 7].astype(np.float32),
+            data_1[:, 3],
+            data_1[:, 8].astype(np.float32),
+            data_1[:, 9].astype(np.float32),
+            data_1[:, 0],
+            data_1[:, 11],
+            data_1[:, 12],
+            data_1[:, 13],
+            data_1[:, 14],
+        )
 
-def prepare_features(data, feature_cols):
-    # Function to prepare features for training
-    features = data[:, feature_cols].astype(np.float32)
-    return features
+        le = LabelEncoder()
+        res = le.fit_transform(res)
+        L = le.fit_transform(L)
+        R = le.fit_transform(R)
+        LL = le.fit_transform(LL)
+        RR = le.fit_transform(RR)
 
-def train_model(X, y, hparam):
-    # Function to train the Gradient Boosting Classifier model
-    model_gb = GradientBoostingClassifier(**hparam, n_jobs=-1)
-    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
-    n_scores = cross_val_score(model_gb, X=X, y=y, scoring='accuracy', cv=cv, n_jobs=-1)
-    return model_gb, np.mean(n_scores), np.std(n_scores)
+        Kio = np.concatenate(
+            (res.reshape(-1, 1), k_int.reshape(-1, 1), r_matrix.reshape(-1, 1), k_obs.reshape(1, -1).T),
+            axis=1,
+        )
 
-def evaluate_model(data_x, data_y, model):
-    # Function to evaluate the model using cross-validation
-    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
-    predicted_targets = np.array([])
-    actual_targets = np.array([])
-    predicted_targets_prob = np.array([])
+        aa = np.concatenate(
+            (phi.reshape(-1, 1), psi.reshape(1, -1).T, sasa.reshape(1, -1).T), axis=1
+        )
 
-    for train_ix, test_ix in cv.split(data_x, data_y):
-        train_x, train_y, test_x, test_y = data_x[train_ix], data_y[train_ix], data_x[test_ix], data_y[test_ix]
-        
-        classifiers = model
-        classifiers.fit(train_x, train_y)
-        predicted_labels = classifiers.predict(test_x)
-        predicted_prob = classifiers.predict_proba(test_x)[:, 1]
-        
-        predicted_targets = np.append(predicted_targets, predicted_labels)
-        predicted_targets_prob = np.append(predicted_targets_prob, predicted_prob)
-        actual_targets = np.append(actual_targets, test_y)
-          
-    return predicted_targets, actual_targets, predicted_targets_prob
+        aa_phi_psi = np.concatenate((phi.reshape(-1, 1), psi.reshape(1, -1).T), axis=1)
 
-def grid_search(model, X, y):
-    # Function to perform Grid Search for hyperparameter tuning
-    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
+        aa_phi_psi_lnp = np.concatenate((phi.reshape(-1, 1), psi.reshape(1, -1).T, lnp.reshape(1, -1).T), axis=1)
 
-    param_grid = {'learning_rate': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1, 2, 3],
-                  'max_depth': np.arange(1, 10),
-                  'n_estimators': [50, 100, 200, 400, 500],
-                  'min_samples_split': [1, 2, 3, 4, 5],
-                  'min_samples_leaf': [1, 2, 3, 4, 5]
-                  }
-    
-    grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=cv, scoring='accuracy', n_jobs=-1)
-    grid_result = grid.fit(X, y)
-    return grid_result.best_score_, grid_result.best_params_
+        aa_phi_psi_sasa_lnp = np.concatenate(
+            (phi.reshape(-1, 1), psi.reshape(1, -1).T, sasa.reshape(1, -1).T, lnp.reshape(1, -1).T),
+            axis=1,
+        )
 
-def plot_confusion_matrix(predicted_targets, actual_targets):
-    # Function to plot the confusion matrix
-    plt.grid('off')
-    cm = confusion_matrix(predicted_targets, actual_targets, normalize='true')
-    ax = axes[1]
-    ti = sns.heatmap(cm, cmap=plt.cm.Blues, annot=True, ax=ax)
-    ti.invert_yaxis()
-    accuracy = accuracy_score(predicted_targets, actual_targets)
-    ax.set_title('Confusion matrix')
-    ax.set_xlabel('True label')
-    ax.set_ylabel('Predicted label')
-    ax.grid('off')
+        aa_phi_psi_sasa = np.concatenate((phi.reshape(-1, 1), psi.reshape(1, -1).T, sasa.reshape(1, -1).T), axis=1)
 
-def plot_calibration_curve(data_x, data_y, model):
-    # Function to plot the calibration curve
-    ax = axes[2]
-    x_, y_ = calibration_curve(data_y, model.predict_proba(data_x)[:, 1], n_bins=20)
-    sns.regplot(x=x_, y=y_, ax=ax)
-    ax.set_title('Calibration curve')
-    ax.set_xlabel('Mean predicted probability')
-    ax.set_ylabel('Fraction of positives')
-    ax.set_ylim(0, 1.03)
-    ax.set_xlim(0, 1.03)
+        return Kio, aa_phi_psi, aa_phi_psi_lnp, aa_phi_psi_sasa_lnp, aa_phi_psi_sasa
 
-def plot_roc_curve(data_x, data_y, model):
-    # Function to plot the ROC curve
-    ax = axes[3]
-   
+
+class ModelCreator:
+    def __init__(self, hparam):
+        self.hparam = hparam
+
+    def create_model(self):
+        model_gb = GradientBoostingClassifier(**self.hparam, n_jobs=-1)
+        return model_gb
+
+
+class ModelEvaluator:
+    def __init__(self, model):
+        self.model = model
+
+    def evaluate_model(self, X, y):
+        cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=1, random_state=32)
+        predicted_targets = np.array([])
+        actual_targets = np.array([])
+        predicted_targets_prob = np.array([])
+
+        for train_ix, test_ix in cv.split(X, y):
+            train_x, train_y, test_x, test_y = X[train_ix], y[train_ix], X[test_ix], y[test_ix]
+
+            classifiers = self.model
+            classifiers.fit(train_x, train_y)
+            predicted_labels = classifiers.predict(test_x)
+            predicted_prob = classifiers.predict_proba(test_x)[:, 1]
+
+            predicted_targets = np.append(predicted_targets, predicted_labels)
+            predicted_targets_prob = np.append(predicted_targets_prob, predicted_prob)
+            actual_targets = np.append(actual_targets, test_y)
+
+        return predicted_targets, actual_targets, predicted_targets_prob
+
+
+if __name__ == "__main__":
+    # Name of the dataset file
+    file_1 = "data5.csv"
+
+    # Initialize DataProcessor and load data
+    data_processor = DataProcessor(file_1)
+    data_1 = data_processor.load_data()
+
+    # Preprocess data
+    Kio, aa_phi_psi, aa_phi_psi_lnp, aa_phi_psi_sasa_lnp, aa_phi_psi_sasa = data_processor.preprocess_data(data_1)
+
+    # Create model
+    hparam = dict(
+        learning_rate=0.2,
+        max_depth=1,
+        max_features='log2',
+        n_estimators=500,
+        random_state=32,
+    )
+    model_creator = ModelCreator(hparam)
+    model_gb = model_creator.create_model()
+
+    # Evaluate model
+    model_evaluator = ModelEvaluator(model_gb)
+    predicted_targets, actual_targets, predicted_targets_prob = model_evaluator.evaluate_model(Kio, aa_phi_psi)
+
+    # More code...
