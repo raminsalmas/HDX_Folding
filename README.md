@@ -8,9 +8,13 @@ with their versions. Here's how you can set up the environment using this file:
 
 Create a Virtual Environment (Optional but Recommended)
 It's a good practice to create a virtual environment to isolate the project's dependencies. If you're not familiar with virtual environments, you can create one as follows:
-    
-python -m venv hdx_env
+<pre>
+    ```bash
+    python -m venv hdx_env
 source hdx_env/bin/activate  # On Windows, use: hdx_env\Scripts\activate
+    ```
+</pre>
+
 
 Install Dependencies
 
