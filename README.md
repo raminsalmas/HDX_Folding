@@ -3,12 +3,11 @@ If you encounter any issues when executing the code, please file a bug report in
 
 Using the requirements.txt File
 
-To ensure that you have all the necessary dependencies installed before running the HDX_Folding code, we provide a requirements.txt file that lists the required Python packages along with their versions. Here's how you can set up the environment using this file:
+To ensure that you have all the necessary dependencies installed before running the HDX_Folding code, we provide a requirements.txt file that lists the required Python packages along 
+with their versions. Here's how you can set up the environment using this file:
 
 Create a Virtual Environment (Optional but Recommended)
-
 It's a good practice to create a virtual environment to isolate the project's dependencies. If you're not familiar with virtual environments, you can create one as follows:
-
     
 python -m venv hdx_env
 source hdx_env/bin/activate  # On Windows, use: hdx_env\Scripts\activate
