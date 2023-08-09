@@ -14,7 +14,12 @@ python -m venv hdx_env
 source hdx_env/bin/activate  # On Windows, use: hdx_env\Scripts\activate
 ```
 </pre>
-
+<pre>
+```bash
+#!/bin/bash
+echo "Hello, world!"
+```
+</pre>
 
 Install Dependencies
 
