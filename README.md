@@ -34,8 +34,3 @@ If you utilised this approach, please cite the linked publication below: <br>
 https://pubs.acs.org/doi/full/10.1021/jasms.3c00145
 
 
-    <h2 id="contact">Contact</h2>
-    <p>For any questions, suggestions, or collaborations, please feel free to contact the project maintainer, Ramin Salmas, at <a href="mailto:ramin.salmas@email.com">ramin.salmas@email.com</a>.</p>
-</body>
-</html>
-
